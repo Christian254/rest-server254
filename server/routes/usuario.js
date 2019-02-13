@@ -3,7 +3,8 @@ const app = express()
 const _ = require('underscore')
 const bcrypt = require('bcrypt');
 const Usuario = require('../models/usuario');
-
+const cors = require('cors')
+app.use(cors())
 app.get('/usuario', function (req, res) {
     let desde = Number.parseInt(req.query.desde) || 0
     let limite = Number.parseInt(req.query.limite) || 5
