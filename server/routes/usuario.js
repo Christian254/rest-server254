@@ -1,11 +1,19 @@
 const express = require('express')
 const app = express()
+
 const _ = require('underscore')
+
 const bcrypt = require('bcrypt');
+
 const Usuario = require('../models/usuario');
+
 const cors = require('cors')
+
+const {verificarToken,verificarAdmin_Role } = require('../middlewares/autenticacion')
 app.use(cors())
-app.get('/usuario', function (req, res) {
+
+
+app.get('/usuario',verificarToken, (req, res)=> {
     let desde = Number.parseInt(req.query.desde) || 0
     let limite = Number.parseInt(req.query.limite) || 5
     Usuario.find({'estado':true},'nombre email estado google')
@@ -29,7 +37,7 @@ app.get('/usuario', function (req, res) {
     })
 })
    
-app.post('/usuario', function (req, res) {
+app.post('/usuario',[verificarToken,verificarAdmin_Role], function (req, res) {
     let body = _.pick(req.body, ['nombre','google','correo','role','img','estado','password']);  
     let usuario = new Usuario({
         nombre: body.nombre,
@@ -53,7 +61,7 @@ app.post('/usuario', function (req, res) {
     })
 })
   
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id',[verificarToken,verificarAdmin_Role], function (req, res) {
     let id = req.params.id;
     let body = req.body; 
     Usuario.findOneAndUpdate(id, body,{new:true, runValidators:true},(err,usuarioDB)=>{
@@ -71,7 +79,7 @@ app.put('/usuario/:id', function (req, res) {
     });
   })
   
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id',[verificarToken,verificarAdmin_Role], function (req, res) {
    let id = req.params.id
    Usuario.findById(id, (err, usuario)=>{
     if(err) {

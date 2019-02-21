@@ -1,0 +1,48 @@
+const express = require('express')
+const bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
+
+const Usuario = require('../models/usuario');
+const cors = require('cors')
+const app = express()
+
+app.use(cors())
+app.post('/login',(req,res)=>{
+    let body = req.body; 
+    Usuario.findOne({email : body.email},(err,usuarioDB)=>{
+        if(err){
+            return res.status(500).json({
+                ok:true,
+                err,
+                mensaje: 'Ocurrió un error :C'
+            })
+        }
+        if(!usuarioDB){
+            return res.status(400).json({
+                ok:true,                
+                err:{
+                    message:'El (usuario) o contraseña es incorrecto'
+                }
+            })
+        }
+        if(!bcrypt.compareSync(body.password, usuarioDB.password)){
+            return res.status(400).json({
+                ok:true,                
+                err:{
+                    message:'El usuario o (contraseña) es incorrecto'
+                }
+            })
+        }
+        let token = jwt.sign({
+            usuario: usuarioDB
+        }, process.env.SEED,{expiresIn:process.env.CADUCIDAD_TOKEN}) 
+
+        res.json({
+            ok:true,
+            usuario: usuarioDB, 
+            token,           
+        })
+
+    })
+})
+module.exports = app;
