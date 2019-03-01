@@ -24,3 +24,6 @@ urlDB = process.env.mongoURI
 }
 
 process.env.urlDB = urlDB
+
+//Google Client 
+process.env.CLIENT_ID = process.env.CLIENT_ID || '492963866156-5ddi1bmu7jv47t8221si0j390m2m09gu.apps.googleusercontent.com'
